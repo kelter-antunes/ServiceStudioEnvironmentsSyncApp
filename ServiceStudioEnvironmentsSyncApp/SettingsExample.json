@@ -1,0 +1,9 @@
+{
+  "ServiceStudioPath": "C:\\Users\\YOUR_USERNAME\\AppData\\Local\\OutSystems\\ServiceStudio 11 XPlatform Stable",
+  "OdCStudioPath": "C:\\Users\\YOUR_USERNAME\\AppData\\Local\\OutSystems\\ODC Studio",
+  "ServerUrl": "https://YOUR_SERVER_HOST/ServiceStudioEnvironmentsAPI/rest/public/sync",
+  "SyncIntervalInMinutes": 5,
+  "SyncSensitiveInfo": true,
+  "LogRetentionInDays": 30,
+  "AutoStart": false
+}

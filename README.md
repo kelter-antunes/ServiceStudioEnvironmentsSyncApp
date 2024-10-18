@@ -44,7 +44,6 @@ Additionally, this app integrates with a server-side component available on the 
 - **Configurable Settings:** Customize synchronization intervals, sensitive information handling, log retention, and auto-start preferences via `Settings.json`.
 - **Logging:** Maintains detailed logs with configurable retention periods to track synchronization activities and issues.
 - **Auto-Start Capability:** Option to launch the app automatically upon system startup.
-- **User-Friendly Status Display:** View the latest synchronization status, errors, and application details through a dedicated status window.
 - **Server Integration:** Connects to a server-side application for centralized synchronization management.
 
 ## Requirements
@@ -88,8 +87,8 @@ Additionally, this app integrates with a server-side component available on the 
    ```
 
    - **Parameters:**
-     - `ServiceStudioPath`: Absolute path to your ServiceStudio installation directory.
-     - `OdCStudioPath`: Absolute path to your ODCStudio installation directory.
+     - `ServiceStudioPath`: Absolute path to your ServiceStudio settings directory.
+     - `OdCStudioPath`: Absolute path to your ODCStudio settings directory.
      - `ServerUrl`: The endpoint URL where synchronization data will be sent and received.
      - `SyncIntervalInMinutes`: Time interval (in minutes) between each synchronization attempt.
      - `SyncSensitiveInfo`: Whether to include sensitive information (e.g., passwords) during synchronization.
