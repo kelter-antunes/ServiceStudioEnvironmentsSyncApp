@@ -187,7 +187,7 @@ namespace ServiceStudioEnvironmentsSyncApp
 
         private void InitializeTrayIcon()
         {
-            Icon appIcon = ServiceStudioEnvironmentsSyncApp.Properties.Resources.app_icon;
+            Icon appIcon = Properties.Resources.app_icon;
 
             if (appIcon == null)
             {
@@ -573,6 +573,7 @@ namespace ServiceStudioEnvironmentsSyncApp
         {
             try
             {
+                XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
                 XDocument doc = XDocument.Load(xmlPath);
                 XElement root = doc.Root;
 
@@ -580,9 +581,9 @@ namespace ServiceStudioEnvironmentsSyncApp
                 XElement newServer = new XElement("MruPasswordBasedServers",
                     new XElement("HostInfo",
                         new XElement("HostName", server.HostInfo.HostName),
-                        // Adjusted condition for PortNumber: empty, null, or "0"
+                        // Correct namespace for xsi:nil
                         string.IsNullOrWhiteSpace(server.HostInfo.PortNumber) || server.HostInfo.PortNumber == "0"
-                            ? new XElement("PortNumber", null, new XAttribute(XNamespace.Xml + "nil", "true"))
+                            ? new XElement("PortNumber", null, new XAttribute(xsi + "nil", "true"))
                             : new XElement("PortNumber", server.HostInfo.PortNumber),
                         new XElement("DisplayName", server.HostInfo.DisplayName),
                         new XElement("HostEnvironmentType", server.HostInfo.HostEnvironmentType)
@@ -592,7 +593,7 @@ namespace ServiceStudioEnvironmentsSyncApp
                     _settings.SyncSensitiveInfo && server.Password != null && !string.IsNullOrWhiteSpace(server.Password.EncryptedValue)
                         ? new XElement("Password",
                             new XElement("EncryptedValue", server.Password.EncryptedValue))
-                        : new XElement("Password", null, new XAttribute(XNamespace.Xml + "nil", "true")),
+                        : new XElement("Password", null, new XAttribute(xsi + "nil", "true")),
                     new XElement("PasswordIsEncryptedForWebServiceRequest", server.PasswordIsEncryptedForWebServiceRequest.ToString().ToLower()),
                     new XElement("LastLogin", server.LastLogin.ToString("o")),
                     new XElement("CustomName", server.CustomName ?? string.Empty),
@@ -622,6 +623,7 @@ namespace ServiceStudioEnvironmentsSyncApp
         {
             try
             {
+                XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
                 XDocument doc = XDocument.Load(xmlPath);
                 XElement root = doc.Root;
 
@@ -629,12 +631,12 @@ namespace ServiceStudioEnvironmentsSyncApp
                 XElement newServer = new XElement("MruServers",
                     new XElement("UserName", server.UserName),
                     new XElement("CustomName", server.CustomName ?? string.Empty),
-                    new XElement("LastLogin", server.LastLogin.ToString("o")),
+                    new XElement("LastLogin", server.LastLogin.Value.ToString("o")),
                     new XElement("HostInfo",
                         new XElement("Hostname", server.HostInfo.HostName),
-                        // Adjusted condition for PortNumber: empty, null, or "0"
+                        // Correct namespace for xsi:nil
                         string.IsNullOrWhiteSpace(server.HostInfo.PortNumber) || server.HostInfo.PortNumber == "0"
-                            ? new XElement("PortNumber", null, new XAttribute(XNamespace.Xml + "nil", "true"))
+                            ? new XElement("PortNumber", null, new XAttribute(xsi + "nil", "true"))
                             : new XElement("PortNumber", server.HostInfo.PortNumber),
                         new XElement("DisplayName", server.HostInfo.DisplayName),
                         new XElement("EnvironmentId", server.HostInfo.EnvironmentId)
@@ -644,7 +646,7 @@ namespace ServiceStudioEnvironmentsSyncApp
                             new XElement("EncryptedIdToken", server.TokenInfo.EncryptedIdToken),
                             new XElement("EncryptedRefreshToken", server.TokenInfo.EncryptedRefreshToken),
                             new XElement("RefreshTokenExpiration", server.TokenInfo.RefreshTokenExpiration.ToString("o")))
-                        : new XElement("TokenInfo", null, new XAttribute(XNamespace.Xml + "nil", "true"))
+                        : new XElement("TokenInfo", null, new XAttribute(xsi + "nil", "true"))
                 );
 
                 // Append the new server

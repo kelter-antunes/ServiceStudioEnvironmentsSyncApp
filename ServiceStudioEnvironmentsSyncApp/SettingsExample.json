@@ -5,5 +5,6 @@
   "SyncIntervalInMinutes": 5,
   "SyncSensitiveInfo": true,
   "LogRetentionInDays": 30,
-  "AutoStart": false
+  "AutoStart": false,
+  "ApiKey": "YOUR_API_KEY"
 }

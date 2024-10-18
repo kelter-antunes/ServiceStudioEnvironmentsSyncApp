@@ -15,7 +15,6 @@ namespace ServiceStudioEnvironmentsSyncApp
         public string ApiKey { get; set; }
     }
 
-    // Structure to hold settings
     public class ServiceStudioServerInfo
     {
         public HostInfoServiceStudio HostInfo { get; set; }
@@ -23,17 +22,32 @@ namespace ServiceStudioEnvironmentsSyncApp
         public bool DoNotSaveSecret { get; set; }
         public Password Password { get; set; }
         public bool PasswordIsEncryptedForWebServiceRequest { get; set; }
-        public DateTime LastLogin { get; set; }
+
+        // Default LastLogin to 1900-01-01
+        private DateTime _lastLogin = new DateTime(1900, 1, 1);
+        public DateTime LastLogin
+        {
+            get { return _lastLogin; }
+            set { _lastLogin = value == default ? new DateTime(1900, 1, 1) : value; }
+        }
+
         public string CustomName { get; set; }
         public CompanyInfo CompanyInfo { get; set; }
     }
 
-    // Structure to hold ODCStudio server info
     public class ODCStudioServerInfo
     {
         public string UserName { get; set; }
         public string CustomName { get; set; }
-        public DateTime LastLogin { get; set; }
+
+        // Nullable DateTime for LastLogin to allow null, default to 1900-01-01
+        private DateTime? _lastLogin = new DateTime(1900, 1, 1);
+        public DateTime? LastLogin
+        {
+            get { return _lastLogin ?? new DateTime(1900, 1, 1); }
+            set { _lastLogin = value ?? new DateTime(1900, 1, 1); }
+        }
+
         public HostInfoODC HostInfo { get; set; }
         public TokenInfo TokenInfo { get; set; }
     }
@@ -63,7 +77,14 @@ namespace ServiceStudioEnvironmentsSyncApp
     {
         public string EncryptedIdToken { get; set; }
         public string EncryptedRefreshToken { get; set; }
-        public DateTime RefreshTokenExpiration { get; set; }
+
+        // Default RefreshTokenExpiration to 1900-01-01
+        private DateTime _refreshTokenExpiration = new DateTime(1900, 1, 1);
+        public DateTime RefreshTokenExpiration
+        {
+            get { return _refreshTokenExpiration; }
+            set { _refreshTokenExpiration = value == default ? new DateTime(1900, 1, 1) : value; }
+        }
     }
 
     public class CompanyInfo
@@ -73,7 +94,7 @@ namespace ServiceStudioEnvironmentsSyncApp
 
     public class SyncPayload
     {
-        public DateTime Timestamp { get; set; }
+        public DateTime Timestamp { get; set; } = new DateTime(1900, 1, 1); // Default to 1900-01-01
         public List<ServiceStudioServerInfo> ServiceStudioServers { get; set; }
         public List<ODCStudioServerInfo> ODCStudioServers { get; set; }
     }
