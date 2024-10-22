@@ -63,7 +63,7 @@ namespace ServiceStudioEnvironmentsSyncApp
 
             // Retrieve AssemblyCopyright
             var copyrightAttr = (AssemblyCopyrightAttribute)Assembly.GetExecutingAssembly()
-                                        .GetCustomAttribute(typeof(AssemblyCopyrightAttribute));
+                .GetCustomAttribute(typeof(AssemblyCopyrightAttribute));
             string defaultCopyright = "Copyright © 2024 Miguel 'Kelter' Antunes";
             if (copyrightAttr != null)
             {
@@ -102,11 +102,26 @@ namespace ServiceStudioEnvironmentsSyncApp
                 string json = File.ReadAllText(configPath);
                 _settings = JsonConvert.DeserializeObject<AppSettings>(json);
 
-                // Validate paths
-                if (!Directory.Exists(_settings.ServiceStudioPath) || !Directory.Exists(_settings.OdCStudioPath))
+                // Validate paths: Proceed if at least one directory exists
+                bool serviceStudioExists = Directory.Exists(_settings.ServiceStudioPath);
+                bool odcStudioExists = Directory.Exists(_settings.OdCStudioPath);
+
+                if (!serviceStudioExists && !odcStudioExists)
                 {
-                    _logger.Log("One or both specified directories do not exist.", LogLevel.Error);
+                    _logger.Log("Neither ServiceStudioPath nor OdCStudioPath exists.", LogLevel.Error);
                     return false;
+                }
+                else
+                {
+                    if (!serviceStudioExists)
+                    {
+                        _logger.Log($"ServiceStudioPath does not exist: {_settings.ServiceStudioPath}", LogLevel.Warning);
+                    }
+
+                    if (!odcStudioExists)
+                    {
+                        _logger.Log($"OdCStudioPath does not exist: {_settings.OdCStudioPath}", LogLevel.Warning);
+                    }
                 }
 
                 // Validate ServerUrl
@@ -116,14 +131,12 @@ namespace ServiceStudioEnvironmentsSyncApp
                     return false;
                 }
 
-
                 // Validate ApiKey
                 if (string.IsNullOrWhiteSpace(_settings.ApiKey))
                 {
                     _logger.Log("ApiKey is not set in Settings.json.", LogLevel.Error);
                     return false;
                 }
-
 
                 _logger.Log("Settings loaded successfully.");
                 return true;
@@ -149,8 +162,8 @@ namespace ServiceStudioEnvironmentsSyncApp
                     string serviceStudioSettingsPath = Path.Combine(_settings.ServiceStudioPath, "Settings.xml");
                     string odcStudioSettingsPath = Path.Combine(_settings.OdCStudioPath, "Settings.xml");
 
-                    // Check if the Settings.xml files exist before backing up
-                    if (File.Exists(serviceStudioSettingsPath))
+                    // Backup ServiceStudio Settings.xml if it exists
+                    if (Directory.Exists(_settings.ServiceStudioPath) && File.Exists(serviceStudioSettingsPath))
                     {
                         string backupServicePath = Path.Combine(backupsDir, $"ServiceStudio_Settings_{DateTime.Now:yyyyMMdd_HHmmss}.xml");
                         File.Copy(serviceStudioSettingsPath, backupServicePath);
@@ -161,7 +174,8 @@ namespace ServiceStudioEnvironmentsSyncApp
                         _logger.Log($"ServiceStudio Settings.xml not found at {serviceStudioSettingsPath}", LogLevel.Warning);
                     }
 
-                    if (File.Exists(odcStudioSettingsPath))
+                    // Backup ODCStudio Settings.xml if it exists
+                    if (Directory.Exists(_settings.OdCStudioPath) && File.Exists(odcStudioSettingsPath))
                     {
                         string backupOdcPath = Path.Combine(backupsDir, $"ODCStudio_Settings_{DateTime.Now:yyyyMMdd_HHmmss}.xml");
                         File.Copy(odcStudioSettingsPath, backupOdcPath);
@@ -188,7 +202,6 @@ namespace ServiceStudioEnvironmentsSyncApp
         private void InitializeTrayIcon()
         {
             Icon appIcon = Properties.Resources.app_icon;
-
             if (appIcon == null)
             {
                 // Create a default icon if the specified icon is not found
@@ -274,7 +287,6 @@ namespace ServiceStudioEnvironmentsSyncApp
         private void UpdateTrayText()
         {
             //// TODO: Temporarily disabled status on tooltip. Maybe this should be dropped and just show the app name on hover.
-
             /// Note: NotifyIcon.Text has a maximum length of 63 characters.
             //string tooltip = $"ServiceStudio Environments Sync App\nLast Sync: {_latestSyncTime}\nLast Error: {_latestError}";
             //if (tooltip.Length > 63)
@@ -296,32 +308,46 @@ namespace ServiceStudioEnvironmentsSyncApp
                 var serviceStudioServers = new List<ServiceStudioServerInfo>();
                 var odcStudioServers = new List<ODCStudioServerInfo>();
 
-                // Extract ServiceStudio servers
-                string serviceStudioSettings = Path.Combine(_settings.ServiceStudioPath, "Settings.xml");
-                if (File.Exists(serviceStudioSettings))
+                // Extract ServiceStudio servers if the directory exists
+                if (Directory.Exists(_settings.ServiceStudioPath))
                 {
-                    var extractedServiceStudio = ExtractServiceStudioServers(serviceStudioSettings);
-                    serviceStudioServers.AddRange(extractedServiceStudio);
-                    _logger.Log($"Extracted {extractedServiceStudio.Count} ServiceStudio servers.");
+                    string serviceStudioSettings = Path.Combine(_settings.ServiceStudioPath, "Settings.xml");
+                    if (File.Exists(serviceStudioSettings))
+                    {
+                        var extractedServiceStudio = ExtractServiceStudioServers(serviceStudioSettings);
+                        serviceStudioServers.AddRange(extractedServiceStudio);
+                        _logger.Log($"Extracted {extractedServiceStudio.Count} ServiceStudio servers.");
+                    }
+                    else
+                    {
+                        _latestError = $"Settings.xml not found in {_settings.ServiceStudioPath}";
+                        _logger.Log(_latestError, LogLevel.Error);
+                    }
                 }
                 else
                 {
-                    _latestError = $"Settings.xml not found in {_settings.ServiceStudioPath}";
-                    _logger.Log(_latestError, LogLevel.Error);
+                    _logger.Log($"ServiceStudioPath does not exist: {_settings.ServiceStudioPath}", LogLevel.Warning);
                 }
 
-                // Extract ODCStudio servers
-                string odcStudioSettings = Path.Combine(_settings.OdCStudioPath, "Settings.xml");
-                if (File.Exists(odcStudioSettings))
+                // Extract ODCStudio servers if the directory exists
+                if (Directory.Exists(_settings.OdCStudioPath))
                 {
-                    var extractedODCStudio = ExtractODCStudioServers(odcStudioSettings);
-                    odcStudioServers.AddRange(extractedODCStudio);
-                    _logger.Log($"Extracted {extractedODCStudio.Count} ODCStudio servers.");
+                    string odcStudioSettings = Path.Combine(_settings.OdCStudioPath, "Settings.xml");
+                    if (File.Exists(odcStudioSettings))
+                    {
+                        var extractedODCStudio = ExtractODCStudioServers(odcStudioSettings);
+                        odcStudioServers.AddRange(extractedODCStudio);
+                        _logger.Log($"Extracted {extractedODCStudio.Count} ODCStudio servers.");
+                    }
+                    else
+                    {
+                        _latestError = $"Settings.xml not found in {_settings.OdCStudioPath}";
+                        _logger.Log(_latestError, LogLevel.Error);
+                    }
                 }
                 else
                 {
-                    _latestError = $"Settings.xml not found in {_settings.OdCStudioPath}";
-                    _logger.Log(_latestError, LogLevel.Error);
+                    _logger.Log($"OdCStudioPath does not exist: {_settings.OdCStudioPath}", LogLevel.Warning);
                 }
 
                 if (serviceStudioServers.Count > 0 || odcStudioServers.Count > 0)
@@ -347,22 +373,17 @@ namespace ServiceStudioEnvironmentsSyncApp
                         ServiceStudioServers = serviceStudioServers,
                         ODCStudioServers = odcStudioServers
                     };
-
                     string jsonPayload = JsonConvert.SerializeObject(payload, Formatting.Indented, new JsonSerializerSettings
                     {
                         NullValueHandling = NullValueHandling.Ignore
                     });
 
-
-
                     // Send to Server
                     using (HttpClient client = new HttpClient())
                     {
                         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-
                         // Add the API key to the request headers
                         client.DefaultRequestHeaders.Add("apikey", _settings.ApiKey);
-
                         HttpResponseMessage response = await client.PostAsync(_settings.ServerUrl, content);
                         _logger.Log($"Sent synchronization data to server. Status Code: {response.StatusCode}");
 
@@ -395,7 +416,7 @@ namespace ServiceStudioEnvironmentsSyncApp
                                 {
                                     if (!serviceStudioServers.Exists(s => s.HostInfo.HostName.Equals(server.HostInfo.HostName, StringComparison.OrdinalIgnoreCase)))
                                     {
-                                        AddServiceStudioServerToXml(serviceStudioSettings, server);
+                                        AddServiceStudioServerToXml(Path.Combine(_settings.ServiceStudioPath, "Settings.xml"), server);
                                         addedService++;
                                     }
                                 }
@@ -409,7 +430,7 @@ namespace ServiceStudioEnvironmentsSyncApp
                                 {
                                     if (!odcStudioServers.Exists(s => s.HostInfo.HostName.Equals(server.HostInfo.HostName, StringComparison.OrdinalIgnoreCase)))
                                     {
-                                        AddODCStudioServerToXml(odcStudioSettings, server);
+                                        AddODCStudioServerToXml(Path.Combine(_settings.OdCStudioPath, "Settings.xml"), server);
                                         addedODC++;
                                     }
                                 }
@@ -536,7 +557,6 @@ namespace ServiceStudioEnvironmentsSyncApp
                         var tokenInfoElement = element.Element("TokenInfo");
                         DateTime refreshTokenExpiration = DateTime.MinValue;
                         DateTime.TryParse(tokenInfoElement.Element("RefreshTokenExpiration")?.Value, out refreshTokenExpiration);
-
                         var tokenInfo = new TokenInfo
                         {
                             EncryptedIdToken = tokenInfoElement?.Element("EncryptedIdToken")?.Value,
@@ -591,14 +611,12 @@ namespace ServiceStudioEnvironmentsSyncApp
                     new XElement("UserName", server.UserName),
                     new XElement("DoNotSaveSecret", server.DoNotSaveSecret.ToString().ToLower()),
                     _settings.SyncSensitiveInfo && server.Password != null && !string.IsNullOrWhiteSpace(server.Password.EncryptedValue)
-                        ? new XElement("Password",
-                            new XElement("EncryptedValue", server.Password.EncryptedValue))
+                        ? new XElement("Password", new XElement("EncryptedValue", server.Password.EncryptedValue))
                         : new XElement("Password", null, new XAttribute(xsi + "nil", "true")),
                     new XElement("PasswordIsEncryptedForWebServiceRequest", server.PasswordIsEncryptedForWebServiceRequest.ToString().ToLower()),
                     new XElement("LastLogin", server.LastLogin.ToString("o")),
                     new XElement("CustomName", server.CustomName ?? string.Empty),
-                    new XElement("CompanyInfo",
-                        new XElement("Name", server.CompanyInfo?.Name ?? string.Empty))
+                    new XElement("CompanyInfo", new XElement("Name", server.CompanyInfo?.Name ?? string.Empty))
                 );
 
                 // Append the new server
@@ -606,7 +624,6 @@ namespace ServiceStudioEnvironmentsSyncApp
 
                 // Save the updated XML
                 doc.Save(xmlPath);
-
                 _latestSyncTime = DateTime.Now.ToString("g");
                 _logger.Log($"Added new ServiceStudio server: {server.HostInfo.HostName}");
             }
@@ -616,7 +633,6 @@ namespace ServiceStudioEnvironmentsSyncApp
                 _logger.Log(_latestError, LogLevel.Error);
             }
         }
-
 
         // Method to add ODCStudio server to Settings.xml
         private void AddODCStudioServerToXml(string xmlPath, ODCStudioServerInfo server)
@@ -645,7 +661,8 @@ namespace ServiceStudioEnvironmentsSyncApp
                         ? new XElement("TokenInfo",
                             new XElement("EncryptedIdToken", server.TokenInfo.EncryptedIdToken),
                             new XElement("EncryptedRefreshToken", server.TokenInfo.EncryptedRefreshToken),
-                            new XElement("RefreshTokenExpiration", server.TokenInfo.RefreshTokenExpiration.ToString("o")))
+                            new XElement("RefreshTokenExpiration", server.TokenInfo.RefreshTokenExpiration.ToString("o"))
+                          )
                         : new XElement("TokenInfo", null, new XAttribute(xsi + "nil", "true"))
                 );
 
@@ -654,7 +671,6 @@ namespace ServiceStudioEnvironmentsSyncApp
 
                 // Save the updated XML
                 doc.Save(xmlPath);
-
                 _latestSyncTime = DateTime.Now.ToString("g");
                 _logger.Log($"Added new ODCStudio server: {server.HostInfo.HostName}");
             }
@@ -665,16 +681,13 @@ namespace ServiceStudioEnvironmentsSyncApp
             }
         }
 
-
         // --- Auto-Start Methods ---
-
         private void SetAutoStart(bool enable)
         {
             try
             {
                 string appName = "ServiceStudioEnvironmentsSyncApp"; // Name of your application
                 string exePath = Assembly.GetExecutingAssembly().Location;
-
                 using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true))
                 {
                     if (enable)
@@ -697,6 +710,5 @@ namespace ServiceStudioEnvironmentsSyncApp
                 _logger.Log($"Error setting auto-start: {ex.Message}", LogLevel.Error);
             }
         }
-
     }
 }
