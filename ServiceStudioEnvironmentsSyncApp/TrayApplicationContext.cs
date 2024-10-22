@@ -591,6 +591,12 @@ namespace ServiceStudioEnvironmentsSyncApp
         // Method to add ServiceStudio server to Settings.xml
         private void AddServiceStudioServerToXml(string xmlPath, ServiceStudioServerInfo server)
         {
+            if (!File.Exists(xmlPath))
+            {
+                _logger.Log($"ServiceStudio Settings.xml not found at path: {xmlPath}. Cannot add server {server.HostInfo.HostName}.", LogLevel.Warning);
+                return;
+            }
+
             try
             {
                 XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
@@ -625,7 +631,7 @@ namespace ServiceStudioEnvironmentsSyncApp
                 // Save the updated XML
                 doc.Save(xmlPath);
                 _latestSyncTime = DateTime.Now.ToString("g");
-                _logger.Log($"Added new ServiceStudio server: {server.HostInfo.HostName}");
+                _logger.Log($"Added new ServiceStudio server: {server.HostInfo.HostName}", LogLevel.Info);
             }
             catch (Exception ex)
             {
@@ -637,6 +643,12 @@ namespace ServiceStudioEnvironmentsSyncApp
         // Method to add ODCStudio server to Settings.xml
         private void AddODCStudioServerToXml(string xmlPath, ODCStudioServerInfo server)
         {
+            if (!File.Exists(xmlPath))
+            {
+                _logger.Log($"ODCStudio Settings.xml not found at path: {xmlPath}. Cannot add server {server.HostInfo.HostName}.", LogLevel.Warning);
+                return;
+            }
+
             try
             {
                 XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
@@ -672,7 +684,7 @@ namespace ServiceStudioEnvironmentsSyncApp
                 // Save the updated XML
                 doc.Save(xmlPath);
                 _latestSyncTime = DateTime.Now.ToString("g");
-                _logger.Log($"Added new ODCStudio server: {server.HostInfo.HostName}");
+                _logger.Log($"Added new ODCStudio server: {server.HostInfo.HostName}", LogLevel.Info);
             }
             catch (Exception ex)
             {
