@@ -1,7 +1,6 @@
 # ServiceStudio Environments Sync App
 
-![GitHub Releases](https://img.shields.io/github/downloads/kelter-antunes/ServiceStudioEnvironmentsSyncApp/total.svg)
-![License](https://img.shields.io/github/license/kelter-antunes/ServiceStudioEnvironmentsSyncApp.svg)
+
 
 ## Table of Contents
 
@@ -107,7 +106,7 @@ To enable centralized synchronization, you need to set up the server-side applic
 ### Download from OutSystems Forge
 
 1. **Visit the OutSystems Forge:**
-   - Go to the [ServiceStudio Environments Sync Component](https://www.outsystems.com/forge/component-overview/XXXX/servicestudio-environments) on OutSystems Forge. *(Replace `XXXX` with the actual component ID when available)*
+   - Go to the [ServiceStudio Environments Sync Component](https://www.outsystems.com/forge/component-overview/20199/servicestudio-environments-sync-app-o11) on OutSystems Forge.
 
 2. **Download the Component:**
    - Click the **Download** button to get the server-side application package.
@@ -119,20 +118,17 @@ To enable centralized synchronization, you need to set up the server-side applic
 
 2. **Import the Component:**
    - Navigate to the **Forge** tab within your OutSystems environment.
-   - Click on **Upload Package** or **Import Component** and select the downloaded component file.
+   - Search for the component in the Forge on then click **Install**.
 
-3. **Deploy the Component:**
-   - Follow the on-screen instructions to deploy the server-side application.
-   - Ensure that the deployment is successful and that the application is running correctly.
 
 ### Obtain API Key
 
 1. **Access the Server-Side Application:**
    - Once deployed, open the server-side application within your OutSystems environment.
 
-2. **Generate or Retrieve API Key:**
-   - Navigate to the settings or configuration section of the server-side application.
-   - Click on **Generate API Key** or follow the provided instructions to obtain your unique API Key.
+2. **Go to the application Service Center Site Properties screen:**
+   - Navigate to the Service Center Site Properties screen of the server-side application.
+   - Copy the value of the Site Property APIKey.
    - **Important:** Keep your API Key secure. Do not share it publicly.
 
 ### Configure `Settings.json`
@@ -156,7 +152,7 @@ To enable centralized synchronization, you need to set up the server-side applic
    }
    ```
 
-   - **Ensure Accuracy:** Make sure that the `ServerUrl` and `ApiKey` are correctly entered to establish a successful connection between the sync app and the server.
+   - **Ensure Accuracy:** Make sure that the `ServerUrl` (https://YOUR_SERVER_HOST/ServiceStudioEnvironmentsAPI/rest/public/sync) and `ApiKey` are correctly entered to establish a successful connection between the sync app and the server.
 
 3. **Save the Configuration:**
    - After updating, save the `Settings.json` file to apply the changes.
@@ -309,4 +305,4 @@ Miguel 'Kelter' Antunes - [@miguel_kelter](https://x.com/miguel_kelter)
 
 Windows client app link: [https://github.com/kelter-antunes/ServiceStudioEnvironmentsSyncApp](https://github.com/kelter-antunes/ServiceStudioEnvironmentsSyncApp)
 
-Server app on OutSystems Forge: [https://www.outsystems.com/forge/component-overview/XXXX/servicestudio-environments](https://www.outsystems.com/forge/component-overview/XXXX/servicestudio-environments)
+Server app on OutSystems Forge: [https://www.outsystems.com/forge/component-overview/20199/servicestudio-environments-sync-app-o11](https://www.outsystems.com/forge/component-overview/20199/servicestudio-environments-sync-app-o11)
