@@ -1,7 +1,6 @@
 # ServiceStudio Environments Sync App
 
-![GitHub Releases](https://img.shields.io/github/downloads/kelter-antunes/ServiceStudioEnvironmentsSyncApp/total.svg)
-![License](https://img.shields.io/github/license/kelter-antunes/ServiceStudioEnvironmentsSyncApp.svg)
+
 
 ## Table of Contents
 
